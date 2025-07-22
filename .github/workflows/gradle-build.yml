@@ -18,20 +18,22 @@ jobs:
           repository: 'Acccord/AndroidSerialPort'
           ref: 'refs/tags/1.5.0'
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0  # 确保获取完整历史
+          fetch-depth: 0
 
-      - name: Set up JDK 17
+      - name: Set up JDK 8 (Required for Gradle 5.x)
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '8'
           distribution: 'temurin'
-      
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      
+
       - name: Build with Gradle
-        run: ./gradlew assembleRelease
-      
+        run: |
+          # 临时解决Gradle 5.x在Java 17环境的问题
+          ./gradlew assembleRelease --no-daemon -Dorg.gradle.java.home=$JAVA_HOME_8_X64
+        
       - name: Upload AAR artifact
         uses: actions/upload-artifact@v4
         with:
