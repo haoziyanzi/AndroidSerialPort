@@ -12,28 +12,38 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           repository: 'Acccord/AndroidSerialPort'
-          ref: 'refs/tags/1.5.0'
+          ref: 'refs/tags/${{ github.event.inputs.tag }}'
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Set up JDK 8 (Required for Gradle 5.x)
+      - name: Set up JDK 8
         uses: actions/setup-java@v3
         with:
           java-version: '8'
           distribution: 'temurin'
+
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          android-sdk-file: 'commandlinetools-linux-9477386_latest.zip'
+          api-level: '33'
+          build-tools-version: '33.0.0'
+          ndk-version: '25.2.9519653'
+          cmake-version: '3.22.1'
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: Build with Gradle
         run: |
-          # 临时解决Gradle 5.x在Java 17环境的问题
-          ./gradlew assembleRelease --no-daemon -Dorg.gradle.java.home=$JAVA_HOME_8_X64
-        
+          ./gradlew assembleRelease \
+            --no-daemon \
+            -Dorg.gradle.java.home=$JAVA_HOME_8_X64 \
+            -Pandroid.builder.sdkDownload=true
+
       - name: Upload AAR artifact
         uses: actions/upload-artifact@v4
         with:
