@@ -15,17 +15,21 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.tag }}
+      
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
+      
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+      
       - name: Build with Gradle
         run: ./gradlew assembleRelease
+      
       - name: Upload AAR artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: serialport-aar
           path: serialport/build/outputs/aar/*.aar
